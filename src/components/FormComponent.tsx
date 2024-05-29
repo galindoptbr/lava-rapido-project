@@ -70,9 +70,9 @@ export const FormComponent = () => {
     setLista(updatedLista);
   };
 
-  const handleGorjetaChangeInList = (index: number, value: string) => {
+  const handleGorjetaChangeInList = (index: number, value: number) => {
     const updatedLista = [...lista];
-    updatedLista[index].gorjeta = value !== "" ? parseFloat(value) : 0;
+    updatedLista[index].gorjeta = value;
     setLista(updatedLista);
   };
 
@@ -182,12 +182,12 @@ export const FormComponent = () => {
                 <div className="flex items-center gap-2">
                   <label className="font-bold text-[#EA642D]">Gorjeta:</label>
                   <input
-                    type="text"
-                    value={item.gorjeta === 0 ? "" : item.gorjeta.toString()}
+                    type="number"
+                    value={item.gorjeta}
                     onChange={(e) =>
                       handleGorjetaChangeInList(
                         index,
-                        e.target.value.replace(/[^0-9.]/g, "") // Remove qualquer coisa que não seja número ou ponto
+                        parseFloat(e.target.value) || 0
                       )
                     }
                     className="h-8 w-16 border border-gray-300 focus:border-2 focus:border-[#EA642D] focus:outline-none bg-[#403C3D] p-2 text-zinc-100 text-bold rounded"
@@ -203,8 +203,8 @@ export const FormComponent = () => {
                   />
                 </div>
                 <button onClick={() => handleRemover(index)}>
-                  <FaRegTrashAlt className="text-red-400 absolute  right-0 top-3 mt-1 mr-3" />
-                </button>
+                <FaRegTrashAlt className="text-red-400 absolute  right-0 top-3 mt-1 mr-3" />
+              </button>
               </div>
             </div>
           ))}
