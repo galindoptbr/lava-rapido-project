@@ -4,12 +4,12 @@
   "start_url": "https://lava-rapido-project.vercel.app/",
   "icons": [
     {
-      "src": "./src/assets/Images/android-chrome-512x512.png",
+      "src": "@/assets/images/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "./src/assets/Images/apple-touch-icon.png",
+      "src": "@/assets/images/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
     }
@@ -19,3 +19,5 @@
   "orientation": "portrait",
   "display": "standalone"
 }
+
+
