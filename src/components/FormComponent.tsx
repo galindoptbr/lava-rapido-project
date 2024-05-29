@@ -8,7 +8,7 @@ interface Item {
   modelo: string;
   lavagem: string;
   pagamento: number;
-  gorjeta: number;
+  gorjeta: string; // Tratando gorjeta como string
   foiPago: boolean;
 }
 
@@ -16,7 +16,7 @@ export const FormComponent = () => {
   const [marca, setMarca] = useState("");
   const [modelo, setModelo] = useState("");
   const [lavagem, setLavagem] = useState("Completa");
-  const [pagamento, setPagamento] = useState(13);
+  const [pagamento, setPagamento] = useState("13"); // Inicializa como string
   const [foiPago, setFoiPago] = useState(false);
   const [lista, setLista] = useState<Item[]>([]);
 
@@ -30,12 +30,7 @@ export const FormComponent = () => {
     setLavagem(e.target.value);
   };
   const handlePagamentoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    if (!isNaN(value)) {
-      setPagamento(value);
-    } else {
-      return;
-    }
+    setPagamento(e.target.value);
   };
   const handleFoiPagoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFoiPago(e.target.checked);
@@ -47,8 +42,8 @@ export const FormComponent = () => {
       marca,
       modelo,
       lavagem,
-      pagamento,
-      gorjeta: 0,
+      pagamento: parseFloat(pagamento), // Converte para número ao adicionar
+      gorjeta: "0", // Inicializa gorjeta como string
       foiPago,
     };
     setLista([...lista, newItem]);
@@ -56,7 +51,7 @@ export const FormComponent = () => {
     setMarca("");
     setModelo("");
     setLavagem("Completa");
-    setPagamento(13);
+    setPagamento("13"); // Reseta como string
     setFoiPago(false);
   };
 
@@ -70,9 +65,9 @@ export const FormComponent = () => {
     setLista(updatedLista);
   };
 
-  const handleGorjetaChangeInList = (index: number, value: number) => {
+  const handleGorjetaChangeInList = (index: number, value: string) => {
     const updatedLista = [...lista];
-    updatedLista[index].gorjeta = value;
+    updatedLista[index].gorjeta = value; // Mantém como string
     setLista(updatedLista);
   };
 
@@ -85,7 +80,7 @@ export const FormComponent = () => {
     .filter((item) => item.foiPago)
     .reduce((total, item) => total + item.pagamento, 0);
 
-  const totalGorjeta = lista.reduce((total, item) => total + item.gorjeta, 0);
+  const totalGorjeta = lista.reduce((total, item) => total + parseFloat(item.gorjeta), 0); // Converte gorjeta para número
 
   return (
     <>
@@ -126,7 +121,7 @@ export const FormComponent = () => {
               <label className="font-semibold text-[#EA642D]">Valor:</label>
               <input
                 className="border border-gray-300 focus:border-2 focus:border-[#EA642D] focus:outline-none bg-[#403C3D] p-2 text-zinc-100 text-bold rounded h-8 w-64"
-                type="number"
+                type="text"
                 value={pagamento}
                 onChange={handlePagamentoChange}
               />
@@ -182,12 +177,12 @@ export const FormComponent = () => {
                 <div className="flex items-center gap-2">
                   <label className="font-bold text-[#EA642D]">Gorjeta:</label>
                   <input
-                    type="number"
+                    type="text"
                     value={item.gorjeta}
                     onChange={(e) =>
                       handleGorjetaChangeInList(
                         index,
-                        parseFloat(e.target.value) || 0
+                        e.target.value
                       )
                     }
                     className="h-8 w-16 border border-gray-300 focus:border-2 focus:border-[#EA642D] focus:outline-none bg-[#403C3D] p-2 text-zinc-100 text-bold rounded"
@@ -203,8 +198,8 @@ export const FormComponent = () => {
                   />
                 </div>
                 <button onClick={() => handleRemover(index)}>
-                <FaRegTrashAlt className="text-red-400 absolute  right-0 top-3 mt-1 mr-3" />
-              </button>
+                  <FaRegTrashAlt className="text-red-400 absolute right-0 top-3 mt-1 mr-3" />
+                </button>
               </div>
             </div>
           ))}
