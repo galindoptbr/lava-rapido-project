@@ -1,0 +1,21 @@
+{
+  "name": "Armazém",
+  "short_name": "Armazém",
+  "start_url": "https://lava-rapido-project.vercel.app/",
+  "icons": [
+    {
+      "src": "./src/assets/Images/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "./src/assets/Images/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "background_color": "#E7E6E4",
+  "theme_color": "#E7E6E4",
+  "orientation": "portrait",
+  "display": "standalone"
+}
