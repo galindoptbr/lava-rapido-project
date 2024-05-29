@@ -70,9 +70,9 @@ export const FormComponent = () => {
     setLista(updatedLista);
   };
 
-  const handleGorjetaChangeInList = (index: number, value: number) => {
+  const handleGorjetaChangeInList = (index: number, value: string) => {
     const updatedLista = [...lista];
-    updatedLista[index].gorjeta = value;
+    updatedLista[index].gorjeta = value !== '' ? parseFloat(value) : 0;
     setLista(updatedLista);
   };
 
@@ -203,8 +203,8 @@ export const FormComponent = () => {
                   />
                 </div>
                 <button onClick={() => handleRemover(index)}>
-                  <FaRegTrashAlt className="text-red-400 absolute  right-0 top-3 mt-1 mr-3" />
-                </button>
+                <FaRegTrashAlt className="text-red-400 absolute  right-0 top-3 mt-1 mr-3" />
+              </button>
               </div>
             </div>
           ))}
