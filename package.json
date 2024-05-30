@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.8.2",
     "next": "14.2.3",
     "react": "^18",
     "react-calendar": "^5.0.0",

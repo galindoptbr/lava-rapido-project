@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface Item {
   marca: string;
@@ -80,7 +82,58 @@ export const FormComponent = () => {
     .filter((item) => item.foiPago)
     .reduce((total, item) => total + item.pagamento, 0);
 
-  const totalGorjeta = lista.reduce((total, item) => total + parseFloat(item.gorjeta), 0); // Converte gorjeta para número
+  const totalGorjeta = lista.reduce(
+    (total, item) => total + parseFloat(item.gorjeta),
+    0
+  ); // Converte gorjeta para número
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+
+    doc.text("Relatório do Dia", 14, 22);
+    doc.text(
+      `Data: ${
+        new Date().toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }) ?? ""
+      }`,
+      14,
+      32
+    );
+
+    autoTable(doc, {
+      head: [["Marca", "Modelo", "Lavagem", "Valor", "Gorjeta", "Pago"]],
+      body: lista.map((item) => [
+        item.marca,
+        item.modelo,
+        item.lavagem,
+        `€${item.pagamento.toFixed(2)}`,
+        `€${parseFloat(item.gorjeta).toFixed(2)}`,
+        item.foiPago ? "Sim" : "Não",
+      ]),
+      startY: 40,
+    });
+
+    autoTable(doc, {
+      body: [
+        [`Total Caixa: €${totalPagamento.toFixed(2)}`],
+        [`Total Gorjeta: €${totalGorjeta.toFixed(2)}`],
+      ],
+      startY: (doc as any).lastAutoTable.finalY + 10,
+    });
+
+    doc.save(
+      `Relatorio_${
+        new Date().toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }) ?? ""
+      }.pdf`
+    );
+  };
 
   return (
     <>
@@ -141,7 +194,7 @@ export const FormComponent = () => {
           <div className="flex justify-center">
             <button
               onClick={handleAdicionar}
-              className="bg-[#EA642D] p-2 w-96 rounded-full mt-4 text-white font-bold"
+              className="bg-[#EA642D] p-2 w-80 rounded-full mt-4 text-white font-bold"
             >
               Adicionar
             </button>
@@ -180,10 +233,7 @@ export const FormComponent = () => {
                     type="text"
                     value={item.gorjeta}
                     onChange={(e) =>
-                      handleGorjetaChangeInList(
-                        index,
-                        e.target.value
-                      )
+                      handleGorjetaChangeInList(index, e.target.value)
                     }
                     className="h-8 w-16 border border-gray-300 focus:border-2 focus:border-[#EA642D] focus:outline-none bg-[#403C3D] p-2 text-zinc-100 text-bold rounded"
                   />
@@ -210,8 +260,16 @@ export const FormComponent = () => {
             </p>
             <p className="text-lg">
               Total Gorjeta:
-              <span className="text-[#EA642D] text-xl"> € {totalGorjeta}</span>
+              <span className="text-[#EA642D] text-xl"> €{totalGorjeta}</span>
             </p>
+          </div>
+          <div className="flex justify-center">
+            <button
+              onClick={generatePDF}
+              className="bg-[#EA642D] p-2 w-80 rounded-full text-white font-bold mb-24"
+            >
+              Gerar PDF
+            </button>
           </div>
         </div>
       </div>
