@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -21,6 +21,17 @@ export const FormComponent = () => {
   const [pagamento, setPagamento] = useState("13"); // Inicializa como string
   const [foiPago, setFoiPago] = useState(false);
   const [lista, setLista] = useState<Item[]>([]);
+
+  useEffect(() => {
+    const storedList = localStorage.getItem("lista");
+    if (storedList) {
+      setLista(JSON.parse(storedList));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("lista", JSON.stringify(lista));
+  }, [lista]);
 
   const handleMarcaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMarca(e.target.value);
@@ -133,6 +144,11 @@ export const FormComponent = () => {
         }) ?? ""
       }.pdf`
     );
+  };
+
+  const handleIniciarNovoDia = () => {
+    setLista([]);
+    localStorage.removeItem("lista");
   };
 
   return (
@@ -266,11 +282,20 @@ export const FormComponent = () => {
           <div className="flex justify-center">
             <button
               onClick={generatePDF}
-              className="bg-[#EA642D] p-2 w-80 rounded-full text-white font-bold mb-24"
+              className="bg-[#EA642D] p-2 w-80 rounded-full text-white font-bold mb-10"
             >
-              Gerar PDF
+              Criar Relatório do Dia
             </button>
           </div>
+          <div className="flex flex-col justify-center items-center my-4">
+            <p className="font-semibold text-center mb-1">Ao carregar este botão a lista sera apagada</p>
+          <button
+            onClick={handleIniciarNovoDia}
+            className="bg-red-600 p-2 w-80 rounded-full text-white font-bold mb-10"
+          >
+            Iniciar Novo Dia
+          </button>
+        </div>
         </div>
       </div>
     </>
