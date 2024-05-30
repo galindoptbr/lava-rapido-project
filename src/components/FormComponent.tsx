@@ -288,7 +288,7 @@ export const FormComponent = () => {
             </button>
           </div>
           <div className="flex flex-col justify-center items-center my-4">
-            <p className="font-semibold text-center mb-1">Ao carregar este botão a lista sera apagada</p>
+            <p className="font-semibold text-center mb-1">Ao carregar este botão a lista será apagada</p>
           <button
             onClick={handleIniciarNovoDia}
             className="bg-red-600 p-2 w-80 rounded-full text-white font-bold mb-10"
