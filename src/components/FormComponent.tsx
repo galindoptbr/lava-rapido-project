@@ -109,8 +109,8 @@ export const FormComponent = () => {
         item.marca,
         item.modelo,
         item.lavagem,
-        `€${item.pagamento.toFixed(2)}`,
-        `€${parseFloat(item.gorjeta).toFixed(2)}`,
+        `€ ${item.pagamento.toFixed(2)}`,
+        `€ ${parseFloat(item.gorjeta).toFixed(2)}`,
         item.foiPago ? "Sim" : "Não",
       ]),
       startY: 40,
@@ -118,8 +118,8 @@ export const FormComponent = () => {
 
     autoTable(doc, {
       body: [
-        [`Total Caixa: €${totalPagamento.toFixed(2)}`],
-        [`Total Gorjeta: €${totalGorjeta.toFixed(2)}`],
+        [`Total Caixa: € ${totalPagamento.toFixed(2)}`],
+        [`Total Gorjeta: € ${totalGorjeta.toFixed(2)}`],
       ],
       startY: (doc as any).lastAutoTable.finalY + 10,
     });
