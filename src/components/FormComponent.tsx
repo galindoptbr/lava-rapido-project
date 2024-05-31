@@ -147,9 +147,20 @@ export const FormComponent = () => {
   };
 
   const handleIniciarNovoDia = () => {
-    setLista([]);
-    localStorage.removeItem("lista");
-  };
+    const userConfirmed = window.confirm("Voce tem certeza que deseja apagar a lista atual?")
+    if (userConfirmed) {
+      setLista([]);
+      localStorage.removeItem("lista");
+    } else {
+      return;
+    }
+
+  }
+
+  // const handleIniciarNovoDia = () => {
+  //   setLista([]);
+  //   localStorage.removeItem("lista");
+  // };
 
   return (
     <>
@@ -282,7 +293,7 @@ export const FormComponent = () => {
           <div className="flex justify-center">
             <button
               onClick={generatePDF}
-              className="bg-[#EA642D] p-2 w-80 rounded-full text-white font-bold mb-10"
+              className="bg-[#EA642D] p-2 w-80 rounded-full text-white font-bold mb-20"
             >
               Criar Relatório do Dia
             </button>
