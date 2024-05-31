@@ -147,20 +147,16 @@ export const FormComponent = () => {
   };
 
   const handleIniciarNovoDia = () => {
-    const userConfirmed = window.confirm("Voce tem certeza que deseja apagar a lista atual?")
+    const userConfirmed = window.confirm(
+      "Você tem certeza que deseja apagar a lista atual?"
+    );
     if (userConfirmed) {
       setLista([]);
       localStorage.removeItem("lista");
     } else {
       return;
     }
-
-  }
-
-  // const handleIniciarNovoDia = () => {
-  //   setLista([]);
-  //   localStorage.removeItem("lista");
-  // };
+  };
 
   return (
     <>
@@ -221,7 +217,7 @@ export const FormComponent = () => {
           <div className="flex justify-center">
             <button
               onClick={handleAdicionar}
-              className="bg-[#EA642D] p-2 w-80 rounded-full mt-4 text-white font-bold"
+              className="bg-[#EA642D] p-2 w-80 rounded-full mt-10 text-white font-bold"
             >
               Adicionar
             </button>
@@ -280,7 +276,7 @@ export const FormComponent = () => {
               </div>
             </div>
           ))}
-          <div className="flex flex-col justify-center items-center p-4 mb-10 font-bold mt-4">
+          <div className="flex flex-col justify-center items-center p-4 mb-20 font-bold mt-4">
             <p className="text-lg">
               Total Caixa:
               <span className="text-[#EA642D] text-xl"> €{totalPagamento}</span>
@@ -299,14 +295,13 @@ export const FormComponent = () => {
             </button>
           </div>
           <div className="flex flex-col justify-center items-center my-4">
-            <p className="font-semibold text-center mb-1">Ao carregar este botão a lista será apagada</p>
-          <button
-            onClick={handleIniciarNovoDia}
-            className="bg-red-600 p-2 w-80 rounded-full text-white font-bold mb-10"
-          >
-            Iniciar Novo Dia
-          </button>
-        </div>
+            <button
+              onClick={handleIniciarNovoDia}
+              className="bg-red-600 p-2 w-80 rounded-full text-white font-bold mb-10"
+            >
+              Iniciar Novo Dia
+            </button>
+          </div>
         </div>
       </div>
     </>
