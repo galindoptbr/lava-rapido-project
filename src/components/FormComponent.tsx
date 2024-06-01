@@ -7,7 +7,7 @@ import autoTable from "jspdf-autotable";
 
 interface Item {
   marca: string;
-  modelo: string;
+  matricula: string;
   lavagem: string;
   pagamento: number;
   gorjeta: string; // Tratando gorjeta como string
@@ -16,7 +16,7 @@ interface Item {
 
 export const FormComponent = () => {
   const [marca, setMarca] = useState("");
-  const [modelo, setModelo] = useState("");
+  const [matricula, setMatricula] = useState("");
   const [lavagem, setLavagem] = useState("Completa");
   const [pagamento, setPagamento] = useState("13"); // Inicializa como string
   const [foiPago, setFoiPago] = useState(false);
@@ -36,8 +36,8 @@ export const FormComponent = () => {
   const handleMarcaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMarca(e.target.value);
   };
-  const handleModeloChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setModelo(e.target.value);
+  const handleMatriculaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMatricula(e.target.value);
   };
   const handleLavagemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLavagem(e.target.value);
@@ -53,7 +53,7 @@ export const FormComponent = () => {
     e.preventDefault();
     const newItem: Item = {
       marca,
-      modelo,
+      matricula,
       lavagem,
       pagamento: parseFloat(pagamento), // Converte para número ao adicionar
       gorjeta: "0", // Inicializa gorjeta como string
@@ -62,7 +62,7 @@ export const FormComponent = () => {
     setLista([...lista, newItem]);
 
     setMarca("");
-    setModelo("");
+    setMatricula("");
     setLavagem("Completa");
     setPagamento("13"); // Reseta como string
     setFoiPago(false);
@@ -115,10 +115,10 @@ export const FormComponent = () => {
     );
 
     autoTable(doc, {
-      head: [["Marca", "Modelo", "Lavagem", "Valor", "Gorjeta", "Pago"]],
+      head: [["Marca/Modelo", "Matricula", "Lavagem", "Valor", "Gorjeta", "Pago"]],
       body: lista.map((item) => [
         item.marca,
-        item.modelo,
+        item.matricula,
         item.lavagem,
         `€ ${item.pagamento.toFixed(2)}`,
         `€ ${parseFloat(item.gorjeta).toFixed(2)}`,
@@ -163,7 +163,9 @@ export const FormComponent = () => {
       <div>
         <form>
           <div className="flex flex-col px-2">
-            <label className="font-semibold text-[#EA642D]">Marca:</label>
+            <label className="font-semibold text-[#EA642D]">
+              Marca/Modelo:
+            </label>
             <input
               placeholder="Mercedes, Bmw, Tesla, Toyota..."
               className="border border-gray-300 focus:border-2 focus:border-[#EA642D] focus:outline-none bg-[#403C3D] p-2 text-zinc-100 text-bold rounded h-8"
@@ -173,13 +175,13 @@ export const FormComponent = () => {
             />
           </div>
           <div className="flex flex-col px-2">
-            <label className="font-semibold text-[#EA642D]">Modelo:</label>
+            <label className="font-semibold text-[#EA642D]">Matrícula:</label>
             <input
-              placeholder="Modelo do carro..."
+              placeholder="Matrícula do carro..."
               className="border border-gray-300 focus:border-2 focus:border-[#EA642D] focus:outline-none bg-[#403C3D] p-2 text-zinc-100 text-bold rounded h-8"
               type="text"
-              value={modelo}
-              onChange={handleModeloChange}
+              value={matricula}
+              onChange={handleMatriculaChange}
             />
           </div>
           <div className="flex flex-col px-2">
@@ -237,8 +239,8 @@ export const FormComponent = () => {
                 <span className="font-semibold"> {item.marca}</span>
               </p>
               <p className="flex flex-col font-bold">
-                Modelo:
-                <span className="font-semibold"> {item.modelo}</span>{" "}
+                Matrícula:
+                <span className="font-semibold"> {item.matricula}</span>{" "}
               </p>
               <p className="flex flex-col font-bold">
                 Lavagem:
