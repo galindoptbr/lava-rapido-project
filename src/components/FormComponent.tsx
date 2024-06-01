@@ -115,7 +115,7 @@ export const FormComponent = () => {
     );
 
     autoTable(doc, {
-      head: [["Marca/Modelo", "Matricula", "Lavagem", "Valor", "Gorjeta", "Pago"]],
+      head: [["Marca/Modelo", "Matrícula", "Lavagem", "Valor", "Gorjeta", "Pago"]],
       body: lista.map((item) => [
         item.marca,
         item.matricula,
