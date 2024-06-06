@@ -51,6 +51,10 @@ export const FormComponent = () => {
 
   const handleAdicionar = (e: { preventDefault: () => void }) => {
     e.preventDefault();
+    if (!marca || !matricula || !lavagem || !pagamento || marca === "" || matricula === "" || lavagem === "" || pagamento === "") {
+      alert("Por favor, preencha todos os campos!");
+      return;
+    }
     const newItem: Item = {
       marca,
       matricula,
