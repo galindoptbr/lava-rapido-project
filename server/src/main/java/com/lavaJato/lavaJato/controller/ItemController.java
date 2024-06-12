@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
-@RequestMapping("/itens")
+@RequestMapping("/api/itens")
 public class ItemController {
 
     @Autowired
