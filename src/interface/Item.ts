@@ -3,6 +3,6 @@ export interface Item {
     matricula: string;
     lavagem: string;
     pagamento: number;
-    gorjeta: string;
+    gorjeta: number;
     foiPago: boolean;
 }

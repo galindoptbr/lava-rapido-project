@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8080/api/itens';
 
-export const gerarRelatorioDiario = async (): Promise<Blob> => {
+export const gerarRelatorio = async (): Promise<Blob> => {
   try {
     const response = await axios.get(`${API_URL}/relatorio-diario`, {
       responseType: 'blob', // Para receber o PDF como um blob
