@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "axios": "^1.7.2",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.2",
     "next": "14.2.3",
