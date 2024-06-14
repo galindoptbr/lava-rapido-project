@@ -7,6 +7,8 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,63 +42,51 @@ public class ItemService {
         return itemRepository.findByCreatedAtBetween(inicioDoDia, fimDoDia);
     }
 
-    public byte[] gerarPDFRelatorioDiario() throws IOException {
+    public byte[] gerarRelatorio() throws IOException {
         List<Item> lista = gerarRelatorioDiario();
         double totalPagamento = lista.stream().mapToDouble(item -> item.getPagamento().doubleValue()).sum();
         double totalGorjeta = lista.stream().mapToDouble(item -> Double.parseDouble(item.getGorjeta())).sum();
 
-        try (PDDocument document = new PDDocument()) {
-            PDPage page = new PDPage();
-            document.addPage(page);
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Relatório do Dia");
 
-            try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-                // Definir a fonte antes de mostrar qualquer texto
-                contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 14);;
+            CellStyle headerCellStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerCellStyle.setFont(headerFont);
 
-                contentStream.beginText();
-                contentStream.newLineAtOffset(14, 750);
-                contentStream.showText("Relatório do Dia");
-                contentStream.endText();
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {"Marca/Modelo", "Matrícula", "Lavagem", "Valor", "Gorjeta", "Pago"};
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerCellStyle);
+            }
 
-                contentStream.beginText();
-                contentStream.newLineAtOffset(14, 730);
-                contentStream.showText("Data: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-                contentStream.endText();
+            int rowNum = 1;
+            for (Item item : lista) {
+                Row row = sheet.createRow(rowNum++);
 
-                // Cabeçalho da tabela
-                contentStream.beginText();
-                contentStream.newLineAtOffset(14, 710);
-                contentStream.showText("Marca/Modelo | Matrícula | Lavagem | Valor | Gorjeta | Pago");
-                contentStream.endText();
+                row.createCell(0).setCellValue(item.getMarca());
+                row.createCell(1).setCellValue(item.getMatricula());
+                row.createCell(2).setCellValue("Lavagem");
+                row.createCell(3).setCellValue(item.getPagamento().doubleValue());
+                row.createCell(4).setCellValue(Double.parseDouble(item.getGorjeta()));
+                row.createCell(5).setCellValue(item.getFoiPago() ? "Sim" : "Não");
+            }
 
-                // Dados da tabela
-                int yPosition = 690;
-                for (Item item : lista) {
-                    contentStream.beginText();
-                    contentStream.newLineAtOffset(14, yPosition);
-                    contentStream.showText(item.getMarca() + " | " + item.getMatricula() + " | " + "Lavagem" + " | € " +
-                            String.format("%.2f", item.getPagamento().doubleValue()) + " | € " +
-                            String.format("%.2f", Double.parseDouble(item.getGorjeta())) + " | " +
-                            (item.getFoiPago() ? "Sim" : "Não"));
-                    contentStream.endText();
-                    yPosition -= 20;
-                }
+            Row totalRow = sheet.createRow(rowNum++);
+            totalRow.createCell(0).setCellValue("Total Caixa:");
+            totalRow.createCell(1).setCellValue(totalPagamento);
+            totalRow.createCell(4).setCellValue("Total Gorjeta:");
+            totalRow.createCell(5).setCellValue(totalGorjeta);
 
-                yPosition -= 10;
-                contentStream.beginText();
-                contentStream.newLineAtOffset(14, yPosition);
-                contentStream.showText("Total Caixa: € " + String.format("%.2f", totalPagamento));
-                contentStream.endText();
-
-                yPosition -= 20;
-                contentStream.beginText();
-                contentStream.newLineAtOffset(14, yPosition);
-                contentStream.showText("Total Gorjeta: € " + String.format("%.2f", totalGorjeta));
-                contentStream.endText();
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
             }
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            document.save(outputStream);
+            workbook.write(outputStream);
             return outputStream.toByteArray();
         }
     }

@@ -28,12 +28,12 @@ public class ItemController {
         return itemService.listarTodosItens();
     }
 
-    @GetMapping("/gerar-relatorio-pdf")
-    public void gerarRelatorioPDF(HttpServletResponse response) throws IOException {
-        byte[] pdfContent = itemService.gerarPDFRelatorioDiario();
-        response.setContentType("application/pdf");
+    @GetMapping("/gerar-relatorio")
+    public void gerarRelatorioExcel(HttpServletResponse response) throws IOException {
+        byte[] excelContent = itemService.gerarRelatorio();
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=Relatorio_" +
-                LocalDate.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy")) + ".pdf");
-        response.getOutputStream().write(pdfContent);
+                LocalDate.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy")) + ".xlsx");
+        response.getOutputStream().write(excelContent);
     }
 }
