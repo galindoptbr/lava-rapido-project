@@ -31,42 +31,24 @@ const FormRate = () => {
 
     const generatePDF = async () => {
         try {
-            const pdfBlob = await gerarRelatorio();
-            const url = window.URL.createObjectURL(new Blob([pdfBlob]));
-            const link = document.createElement("a");
+            const blobData = await gerarRelatorio();
+            const url = window.URL.createObjectURL(new Blob([blobData]));
+            const link = document.createElement('a');
             link.href = url;
-            link.setAttribute("download", `Relatorio_${new Date().toLocaleDateString("pt-BR", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-            })}.pdf`);
+            link.setAttribute('download', `Relatorio_${new Date().toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+            })}.xlsx`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            toast.success("Relatório gerado com sucesso!", {
-                position: "top-center",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-            });
         } catch (error) {
-            console.error("Erro ao gerar PDF:", error);
-            toast.error("Erro ao gerar relatório.", {
-                position: "top-center",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-            });
+            console.error('Erro ao gerar relatório:', error);
+            // Tratar o erro conforme necessário
         }
     };
+
 
     return (
         <>
