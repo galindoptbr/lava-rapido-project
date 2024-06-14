@@ -81,8 +81,10 @@ export const FormComponent = () => {
 
   return (
     <>
-      <div>
-        <form onSubmit={salvarLavagem}>
+      <div className="mt-10 p-10 w-full flex flex-col items-center justify-center">
+        <form
+          className="flex flex-col w-[70%]"
+          onSubmit={salvarLavagem}>
           <div className="flex flex-col px-2">
             <label className="font-semibold text-[#EA642D]">Marca/Modelo:</label>
             <input
