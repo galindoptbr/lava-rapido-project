@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
+@CrossOrigin("*")
 @RequestMapping("/api/itens")
 public class ItemController {
 
@@ -24,16 +25,16 @@ public class ItemController {
     }
 
     @GetMapping("/listar")
-    public List<Item> listarTodosItens() {
-        return itemService.listarTodosItens();
+    public List<Item> listarValores(@RequestParam String data) {
+        return itemService.gerarRelatorioPorData(data);
     }
 
     @GetMapping("/gerar-relatorio")
-    public void gerarRelatorioExcel(HttpServletResponse response) throws IOException {
-        byte[] excelContent = itemService.gerarRelatorio();
+    public void gerarRelatorioExcel(@RequestParam String data, HttpServletResponse response) throws IOException {
+        byte[] excelContent = itemService.gerarRelatorio(data);
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=Relatorio_" +
-                LocalDate.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy")) + ".xlsx");
+                LocalDate.parse(data).format(DateTimeFormatter.ofPattern("dd_MM_yyyy")) + ".xlsx");
         response.getOutputStream().write(excelContent);
     }
 }

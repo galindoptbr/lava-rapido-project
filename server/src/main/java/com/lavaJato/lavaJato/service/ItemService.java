@@ -35,15 +35,15 @@ public class ItemService {
         return itemRepository.findAll();
     }
 
-    public List<Item> gerarRelatorioDiario() {
-        LocalDate hoje = LocalDate.now();
-        Date inicioDoDia = Date.from(hoje.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date fimDoDia = Date.from(hoje.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+    public List<Item> gerarRelatorioPorData(String data) {
+        LocalDate dia = LocalDate.parse(data);
+        Date inicioDoDia = Date.from(dia.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date fimDoDia = Date.from(dia.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
         return itemRepository.findByCreatedAtBetween(inicioDoDia, fimDoDia);
     }
 
-    public byte[] gerarRelatorio() throws IOException {
-        List<Item> lista = gerarRelatorioDiario();
+    public byte[] gerarRelatorio(String data) throws IOException {
+        List<Item> lista = gerarRelatorioPorData(data);
         double totalPagamento = lista.stream().mapToDouble(item -> item.getPagamento().doubleValue()).sum();
         double totalGorjeta = lista.stream().mapToDouble(item -> Double.parseDouble(item.getGorjeta())).sum();
 
@@ -52,8 +52,19 @@ public class ItemService {
 
             CellStyle headerCellStyle = workbook.createCellStyle();
             Font headerFont = workbook.createFont();
+            headerFont.setColor(IndexedColors.WHITE.getIndex());
             headerFont.setBold(true);
             headerCellStyle.setFont(headerFont);
+            headerCellStyle.setFillForegroundColor(IndexedColors.BLUE.getIndex());
+            headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            CellStyle oddRowCellStyle = workbook.createCellStyle();
+            oddRowCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+            oddRowCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            CellStyle evenRowCellStyle = workbook.createCellStyle();
+            evenRowCellStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+            evenRowCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
             Row headerRow = sheet.createRow(0);
             String[] headers = {"Marca/Modelo", "Matrícula", "Lavagem", "Valor", "Gorjeta", "Pago"};
@@ -66,13 +77,31 @@ public class ItemService {
             int rowNum = 1;
             for (Item item : lista) {
                 Row row = sheet.createRow(rowNum++);
+                CellStyle rowStyle = (rowNum % 2 == 0) ? evenRowCellStyle : oddRowCellStyle;
 
-                row.createCell(0).setCellValue(item.getMarca());
-                row.createCell(1).setCellValue(item.getMatricula());
-                row.createCell(2).setCellValue("Lavagem");
-                row.createCell(3).setCellValue(item.getPagamento().doubleValue());
-                row.createCell(4).setCellValue(Double.parseDouble(item.getGorjeta()));
-                row.createCell(5).setCellValue(item.getFoiPago() ? "Sim" : "Não");
+                Cell cell0 = row.createCell(0);
+                cell0.setCellValue(item.getMarca());
+                cell0.setCellStyle(rowStyle);
+
+                Cell cell1 = row.createCell(1);
+                cell1.setCellValue(item.getMatricula());
+                cell1.setCellStyle(rowStyle);
+
+                Cell cell2 = row.createCell(2);
+                cell2.setCellValue("Lavagem");
+                cell2.setCellStyle(rowStyle);
+
+                Cell cell3 = row.createCell(3);
+                cell3.setCellValue(item.getPagamento().doubleValue());
+                cell3.setCellStyle(rowStyle);
+
+                Cell cell4 = row.createCell(4);
+                cell4.setCellValue(Double.parseDouble(item.getGorjeta()));
+                cell4.setCellStyle(rowStyle);
+
+                Cell cell5 = row.createCell(5);
+                cell5.setCellValue(item.getFoiPago() ? "Sim" : "Não");
+                cell5.setCellStyle(rowStyle);
             }
 
             Row totalRow = sheet.createRow(rowNum++);
@@ -91,3 +120,4 @@ public class ItemService {
         }
     }
 }
+
