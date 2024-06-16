@@ -5,7 +5,6 @@ import Image from "next/image";
 import logo from "@/assets/logo-galp.png";
 import logoLavagem from "@/assets/logo-lavagem-auto.png";
 import logoGalindo from "@/assets/logo-galindo.png";
-import { CalendarComponent } from "@/components/CalendarComponent";
 import { FormComponent } from "@/components/FormComponent";
 import Link from "next/link";
 
@@ -19,7 +18,6 @@ export default function Home() {
           <Image className="w-32" src={logoGalindo} alt="Logo Galindo" />
         </Link>
       </div>
-      <CalendarComponent />
       <FormComponent />
     </>
   );

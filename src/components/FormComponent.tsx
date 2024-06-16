@@ -1,314 +1,172 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { FaRegTrashAlt } from "react-icons/fa";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import React, { useState } from "react";
+import { adicionarValor } from "@/services/ApiService";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import FormRate from "./Form-rate";
 
-interface Item {
-  marca: string;
-  matricula: string;
-  lavagem: string;
-  pagamento: number;
-  gorjeta: string; // Tratando gorjeta como string
-  foiPago: boolean;
-}
+const defaultObj = {
+  marca: "",
+  matricula: "",
+  lavagem: "",
+  pagamento: 0,
+  gorjeta: 0,
+  foiPago: false,
+};
 
 export const FormComponent = () => {
-  const [marca, setMarca] = useState("");
-  const [matricula, setMatricula] = useState("");
-  const [lavagem, setLavagem] = useState("Completa");
-  const [pagamento, setPagamento] = useState("13"); // Inicializa como string
-  const [foiPago, setFoiPago] = useState(false);
-  const [lista, setLista] = useState<Item[]>([]);
+  const [data, setData] = useState(defaultObj);
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  useEffect(() => {
-    const storedList = localStorage.getItem("lista");
-    if (storedList) {
-      setLista(JSON.parse(storedList));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("lista", JSON.stringify(lista));
-  }, [lista]);
-
-  const handleMarcaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMarca(e.target.value);
-  };
-  const handleMatriculaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMatricula(e.target.value);
-  };
-  const handleLavagemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLavagem(e.target.value);
-  };
-  const handlePagamentoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPagamento(e.target.value);
-  };
-  const handleFoiPagoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFoiPago(e.target.checked);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setData((prevData) => ({
+      ...prevData,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
-  const handleAdicionar = (e: { preventDefault: () => void }) => {
+  const salvarLavagem = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!marca || !matricula || !lavagem || !pagamento || marca === "" || matricula === "" || lavagem === "" || pagamento === "") {
-      alert("Por favor, preencha todos os campos!");
-      return;
-    }
-    const newItem: Item = {
-      marca,
-      matricula,
-      lavagem,
-      pagamento: parseFloat(pagamento), // Converte para número ao adicionar
-      gorjeta: "0", // Inicializa gorjeta como string
-      foiPago,
-    };
-    setLista([...lista, newItem]);
-
-    setMarca("");
-    setMatricula("");
-    setLavagem("Completa");
-    setPagamento("13"); // Reseta como string
-    setFoiPago(false);
-  };
-
-  const handleCheckboxChange = (index: number) => {
-    const updatedLista = lista.map((item, idx) => {
-      if (idx === index) {
-        return { ...item, foiPago: !item.foiPago };
+    try {
+      if (!validateFields()) {
+        return;
       }
-      return item;
-    });
-    setLista(updatedLista);
-  };
-
-  const handleGorjetaChangeInList = (index: number, value: string) => {
-    const updatedLista = [...lista];
-    updatedLista[index].gorjeta = value; // Mantém como string
-    setLista(updatedLista);
-  };
-
-  const handleRemover = (index: number) => {
-    const updatedLista = lista.filter((_, idx) => idx !== index);
-    setLista(updatedLista);
-  };
-
-  const totalPagamento = lista
-    .filter((item) => item.foiPago)
-    .reduce((total, item) => total + item.pagamento, 0);
-
-  const totalGorjeta = lista.reduce(
-    (total, item) => total + parseFloat(item.gorjeta),
-    0
-  ); // Converte gorjeta para número
-
-  const generatePDF = () => {
-    const doc = new jsPDF();
-
-    doc.text("Relatório do Dia", 14, 22);
-    doc.text(
-      `Data: ${
-        new Date().toLocaleDateString("pt-BR", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }) ?? ""
-      }`,
-      14,
-      32
-    );
-
-    autoTable(doc, {
-      head: [["Marca/Modelo", "Matrícula", "Lavagem", "Valor", "Gorjeta", "Pago"]],
-      body: lista.map((item) => [
-        item.marca,
-        item.matricula,
-        item.lavagem,
-        `€ ${item.pagamento.toFixed(2)}`,
-        `€ ${parseFloat(item.gorjeta).toFixed(2)}`,
-        item.foiPago ? "Sim" : "Não",
-      ]),
-      startY: 40,
-    });
-
-    autoTable(doc, {
-      body: [
-        [`Total Caixa: € ${totalPagamento.toFixed(2)}`],
-        [`Total Gorjeta: € ${totalGorjeta.toFixed(2)}`],
-      ],
-      startY: (doc as any).lastAutoTable.finalY + 10,
-    });
-
-    doc.save(
-      `Relatorio_${
-        new Date().toLocaleDateString("pt-BR", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }) ?? ""
-      }.pdf`
-    );
-  };
-
-  const handleIniciarNovoDia = () => {
-    const userConfirmed = window.confirm(
-      "Você tem certeza que deseja apagar a lista atual?"
-    );
-    if (userConfirmed) {
-      setLista([]);
-      localStorage.removeItem("lista");
-    } else {
-      return;
+      await adicionarValor(data);
+      toast.success("Lavagem adicionada com sucesso!", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+      setData(defaultObj);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error) {
+      console.error("Erro ao adicionar lavagem: ", error);
+      toast.error("Erro ao adicionar lavagem.", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
     }
+  };
+
+  const validateFields = () => {
+    if (
+      !data.marca ||
+      !data.matricula ||
+      !data.lavagem ||
+      !data.pagamento ||
+      !data.gorjeta
+    ) {
+      setErrorMessage("Por favor, preencha todos os campos.");
+      setError(true);
+      return false;
+    }
+    return true;
   };
 
   return (
     <>
-      <div>
-        <form>
+      <div className="mt-10 p-10 w-full flex flex-col items-center justify-center">
+        <form
+          className="flex flex-col w-[70%]"
+          onSubmit={salvarLavagem}>
           <div className="flex flex-col px-2">
-            <label className="font-semibold text-[#EA642D]">
-              Marca/Modelo:
-            </label>
+            <label className="font-semibold text-[#EA642D]">Marca/Modelo:</label>
             <input
+              name="marca"
+              value={data.marca}
               placeholder="Mercedes, Bmw, Tesla, Toyota..."
               className="border border-gray-300 focus:border-2 focus:border-[#EA642D] focus:outline-none bg-[#403C3D] p-2 text-zinc-100 text-bold rounded h-8"
               type="text"
-              value={marca}
-              onChange={handleMarcaChange}
+              onChange={handleChange}
             />
           </div>
           <div className="flex flex-col px-2">
             <label className="font-semibold text-[#EA642D]">Matrícula:</label>
             <input
+              name="matricula"
+              value={data.matricula}
               placeholder="Matrícula do carro..."
               className="border border-gray-300 focus:border-2 focus:border-[#EA642D] focus:outline-none bg-[#403C3D] p-2 text-zinc-100 text-bold rounded h-8"
               type="text"
-              value={matricula}
-              onChange={handleMatriculaChange}
+              onChange={handleChange}
             />
           </div>
           <div className="flex flex-col px-2">
             <label className="font-semibold text-[#EA642D]">Lavagem:</label>
             <input
+              name="lavagem"
+              value={data.lavagem}
               placeholder="Completa, Fora..."
               className="border border-gray-300 focus:border-2 focus:border-[#EA642D] focus:outline-none bg-[#403C3D] p-2 text-zinc-100 text-bold rounded h-8"
               type="text"
-              value={lavagem}
-              onChange={handleLavagemChange}
+              onChange={handleChange}
             />
           </div>
           <div className="flex justify-between items-center px-2 gap-3">
             <div className="flex flex-col">
               <label className="font-semibold text-[#EA642D]">Valor:</label>
               <input
+                name="pagamento"
+                value={data.pagamento}
                 className="border border-gray-300 focus:border-2 focus:border-[#EA642D] focus:outline-none bg-[#403C3D] p-2 text-zinc-100 text-bold rounded h-8 w-64"
-                type="text"
-                value={pagamento}
-                onChange={handlePagamentoChange}
+                type="number"
+                onChange={handleChange}
               />
             </div>
             <div className="flex gap-2 mr-4 mt-5">
               <label className="font-bold text-[#EA642D]">Pago</label>
               <input
+                name="foiPago"
+                checked={data.foiPago}
                 type="checkbox"
-                id="pagamento"
-                checked={foiPago}
-                onChange={handleFoiPagoChange}
+                onChange={handleChange}
                 className="w-6 h-6"
               />
             </div>
           </div>
+          <div className="flex flex-col px-2">
+            <label className="font-semibold text-[#EA642D]">Gorjeta:</label>
+            <input
+              name="gorjeta"
+              value={data.gorjeta}
+              className="border border-gray-300 focus:border-2 focus:border-[#EA642D] focus:outline-none bg-[#403C3D] p-2 text-zinc-100 text-bold rounded h-8"
+              type="number"
+              onChange={handleChange}
+            />
+          </div>
+          {error && (
+            <div className="text-red-500 text-center mt-2">{errorMessage}</div>
+          )}
           <div className="flex justify-center">
             <button
-              onClick={handleAdicionar}
+              type="submit"
               className="bg-[#EA642D] p-2 w-80 rounded-full mt-10 text-white font-bold"
             >
               Adicionar
             </button>
           </div>
         </form>
-
-        <div className="mt-8">
-          <h2 className="flex justify-center font-semibold text-xl text-[#EA642D] border-b border-gray-300">
-            Lista de Lavagem
-          </h2>
-          {lista.map((item, index) => (
-            <div
-              key={index}
-              className="grid grid-cols-3 font-semibold text-md gap-2 border-b border-gray-300 p-4 relative"
-            >
-              <p className="flex flex-col font-bold">
-                Marca:
-                <span className="font-semibold"> {item.marca}</span>
-              </p>
-              <p className="flex flex-col font-bold">
-                Matrícula:
-                <span className="font-semibold"> {item.matricula}</span>{" "}
-              </p>
-              <p className="flex flex-col font-bold">
-                Lavagem:
-                <span className="font-semibold"> {item.lavagem}</span>
-              </p>
-              <p className="flex flex-col font-bold">
-                Valor:
-                <span className="font-semibold"> €{item.pagamento}</span>
-              </p>
-              <div className="flex gap-2">
-                <div className="flex items-center gap-2">
-                  <label className="font-bold text-[#EA642D]">Gorjeta:</label>
-                  <input
-                    type="text"
-                    value={item.gorjeta}
-                    onChange={(e) =>
-                      handleGorjetaChangeInList(index, e.target.value)
-                    }
-                    className="h-8 w-16 border border-gray-300 focus:border-2 focus:border-[#EA642D] focus:outline-none bg-[#403C3D] p-2 text-zinc-100 text-bold rounded"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <label className="font-bold text-[#EA642D]">Pago</label>
-                  <input
-                    type="checkbox"
-                    checked={item.foiPago}
-                    onChange={() => handleCheckboxChange(index)}
-                    className="w-6 h-6"
-                  />
-                </div>
-                <button onClick={() => handleRemover(index)}>
-                  <FaRegTrashAlt className="text-red-400 absolute right-0 top-3 mt-1 mr-3" />
-                </button>
-              </div>
-            </div>
-          ))}
-          <div className="flex flex-col justify-center items-center p-4 mb-20 font-bold mt-4">
-            <p className="text-lg">
-              Total Caixa:
-              <span className="text-[#EA642D] text-xl"> €{totalPagamento}</span>
-            </p>
-            <p className="text-lg">
-              Total Gorjeta:
-              <span className="text-[#EA642D] text-xl"> €{totalGorjeta}</span>
-            </p>
-          </div>
-          <div className="flex justify-center">
-            <button
-              onClick={generatePDF}
-              className="bg-[#EA642D] p-2 w-80 rounded-full text-white font-bold mb-20"
-            >
-              Criar Relatório do Dia
-            </button>
-          </div>
-          <div className="flex flex-col justify-center items-center my-4">
-            <button
-              onClick={handleIniciarNovoDia}
-              className="bg-red-600 p-2 w-80 rounded-full text-white font-bold mb-10"
-            >
-              Iniciar Novo Dia
-            </button>
-          </div>
-        </div>
       </div>
+      <ToastContainer />
+
+      <FormRate />
+
     </>
   );
 };
